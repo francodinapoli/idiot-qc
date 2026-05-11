@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>IDIOT QC</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg: #0f0f0f;
+  --bg2: #181818;
+  --bg3: #222222;
+  --border: #2a2a2a;
+  --border2: #333;
+  --text: #f0f0f0;
+  --text2: #888;
+  --text3: #555;
+  --green: #22c55e;
+  --green-dim: #16a34a22;
+  --red: #ef4444;
+  --red-dim: #ef444420;
+  --amber: #f59e0b;
+  --amber-dim: #f59e0b20;
+  --blue: #3b82f6;
+  --blue-dim: #3b82f620;
+  --accent: #e8ff47;
+  --accent-dim: #e8ff4715;
+  --radius: 10px;
+  --font: 'DM Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font); }
+
+/* ── LAYOUT ── */
+#app { display: flex; height: 100vh; overflow: hidden; }
+#sidebar { width: 220px; min-width: 220px; background: var(--bg2); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+#main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ── SIDEBAR ── */
+.sidebar-logo { padding: 20px 16px 14px; border-bottom: 1px solid var(--border); }
+.logo-mark { font-family: var(--mono); font-size: 18px; font-weight: 500; color: var(--accent); letter-spacing: 2px; }
+.logo-sub { font-size: 10px; color: var(--text3); letter-spacing: 1px; margin-top: 2px; }
+.sidebar-nav { flex: 1; padding: 10px 8px; overflow-y: auto; }
+.nav-section { font-size: 9px; font-weight: 600; letter-spacing: 1.5px; color: var(--text3); padding: 12px 8px 6px; text-transform: uppercase; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 7px; cursor: pointer; font-size: 13px; color: var(--text2); transition: all .15s; margin-bottom: 2px; }
+.nav-item:hover { background: var(--bg3); color: var(--text); }
+.nav-item.active { background: var(--accent-dim); color: var(--accent); border: 1px solid #e8ff4730; }
+.nav-item .icon { font-size: 15px; width: 18px; text-align: center; }
+.nav-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); margin-left: auto; }
+.nav-dot.green { background: var(--green); }
+.nav-dot.amber { background: var(--amber); }
+
+/* ── TOPBAR ── */
+#topbar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 12px 20px; display: flex; align-items: center; gap: 12px; min-height: 56px; }
+.topbar-title { font-size: 15px; font-weight: 500; flex: 1; }
+.topbar-meta { font-size: 12px; color: var(--text2); font-family: var(--mono); }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 7px; font-size: 13px; font-family: var(--font); font-weight: 500; cursor: pointer; border: none; transition: all .15s; }
+.btn-accent { background: var(--accent); color: #000; }
+.btn-accent:hover { background: #d4e83d; }
+.btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
+.btn-ghost:hover { background: var(--bg3); color: var(--text); }
+.btn-danger { background: var(--red-dim); color: var(--red); border: 1px solid #ef444430; }
+.btn-success { background: var(--green-dim); color: var(--green); border: 1px solid #22c55e30; }
+
+/* ── CONTENT ── */
+#content { flex: 1; overflow-y: auto; padding: 20px; }
+
+/* ── CARDS ── */
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+.card-title { font-size: 12px; font-weight: 600; letter-spacing: .5px; color: var(--text2); text-transform: uppercase; margin-bottom: 12px; }
+
+/* ── HOME ── */
+.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.product-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; cursor: pointer; transition: all .2s; position: relative; overflow: hidden; }
+.product-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.product-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--accent); opacity: 0; transition: opacity .2s; }
+.product-card:hover::before { opacity: 1; }
+.product-icon { font-size: 28px; margin-bottom: 10px; }
+.product-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.product-desc { font-size: 12px; color: var(--text2); margin-bottom: 14px; }
+.product-stats { display: flex; gap: 8px; }
+.stat-pill { font-size: 10px; font-family: var(--mono); padding: 3px 8px; border-radius: 20px; background: var(--bg3); color: var(--text2); }
+
+/* ── QC FORM ── */
+.qc-header { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; }
+.qc-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+.field-label { font-size: 11px; color: var(--text3); margin-bottom: 5px; font-family: var(--mono); letter-spacing: .5px; }
+.field-input { width: 100%; background: var(--bg3); border: 1px solid var(--border2); border-radius: 7px; padding: 9px 12px; font-size: 13px; font-family: var(--font); color: var(--text); outline: none; transition: border-color .15s; }
+.field-input:focus { border-color: var(--accent); }
+.signer-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+
+.qc-section { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 12px; overflow: hidden; }
+.section-header { padding: 12px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; border-bottom: 1px solid var(--border); background: var(--bg3); }
+.section-name { font-size: 13px; font-weight: 600; flex: 1; }
+.section-progress { font-size: 11px; font-family: var(--mono); color: var(--text2); }
+.section-chevron { color: var(--text3); transition: transform .2s; font-size: 12px; }
+.section-header.open .section-chevron { transform: rotate(180deg); }
+.section-body { display: none; }
+.section-body.open { display: block; }
+
+.check-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); transition: background .15s; }
+.check-item:last-child { border-bottom: none; }
+.check-item:hover { background: var(--bg3); }
+.check-item.checked { background: #22c55e08; }
+.check-item.failed { background: var(--red-dim); }
+
+.check-toggle { flex-shrink: 0; width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid var(--border2); background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: all .15s; margin-top: 1px; }
+.check-toggle.on { background: var(--green); border-color: var(--green); }
+.check-toggle.fail { background: var(--red); border-color: var(--red); }
+
+.check-content { flex: 1; }
+.check-label { font-size: 13px; line-height: 1.4; margin-bottom: 6px; }
+.check-code { font-size: 10px; font-family: var(--mono); color: var(--text3); }
+.check-severity { display: inline-block; font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 4px; margin-left: 6px; vertical-align: middle; }
+.sev-C { background: var(--red-dim); color: var(--red); }
+.sev-M { background: var(--amber-dim); color: var(--amber); }
+.sev-m { background: var(--blue-dim); color: var(--blue); }
+
+.check-actions { display: flex; gap: 6px; flex-shrink: 0; align-items: flex-start; margin-top: 1px; }
+.mini-btn { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: all .15s; }
+.mini-btn:hover { background: var(--bg3); color: var(--text); }
+.mini-btn.active-ok { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+.mini-btn.active-fail { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+
+/* Defect note */
+.defect-note { margin: 4px 0 0 0; }
+.defect-input { width: 100%; background: var(--bg3); border: 1px solid var(--red); border-radius: 6px; padding: 7px 10px; font-size: 12px; font-family: var(--font); color: var(--text); outline: none; }
+.defect-select { background: var(--bg3); border: 1px solid var(--border2); border-radius: 6px; padding: 6px 10px; font-size: 12px; font-family: var(--font); color: var(--text); outline: none; margin-top: 4px; width: 100%; }
+
+/* ── PROGRESS BAR ── */
+.progress-bar-wrap { background: var(--bg3); border-radius: 4px; height: 6px; overflow: hidden; margin: 8px 0; }
+.progress-bar { height: 100%; border-radius: 4px; background: var(--accent); transition: width .3s; }
+
+/* ── DASHBOARD ── */
+.dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.metric-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+.metric-label { font-size: 10px; font-family: var(--mono); color: var(--text3); letter-spacing: .5px; margin-bottom: 8px; text-transform: uppercase; }
+.metric-value { font-size: 28px; font-weight: 600; }
+.metric-sub { font-size: 11px; color: var(--text2); margin-top: 4px; }
+.metric-green { color: var(--green); }
+.metric-red { color: var(--red); }
+.metric-amber { color: var(--amber); }
+.metric-accent { color: var(--accent); }
+
+.history-row { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--border); font-size: 13px; cursor: pointer; transition: background .15s; }
+.history-row:hover { background: var(--bg3); }
+.history-row:last-child { border-bottom: none; }
+.hist-product { font-weight: 500; min-width: 80px; font-size: 12px; }
+.hist-sn { font-family: var(--mono); font-size: 11px; color: var(--text2); flex: 1; }
+.hist-date { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+.hist-fpy { font-size: 11px; font-family: var(--mono); min-width: 50px; text-align: right; }
+.status-badge { font-size: 10px; padding: 3px 8px; border-radius: 20px; font-weight: 600; }
+.status-pass { background: var(--green-dim); color: var(--green); }
+.status-fail { background: var(--red-dim); color: var(--red); }
+.status-wip { background: var(--amber-dim); color: var(--amber); }
+
+/* ── MODAL ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.7); display: flex; align-items: center; justify-content: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: 14px; padding: 24px; width: 90%; max-width: 480px; max-height: 80vh; overflow-y: auto; }
+.modal-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: 20px; right: 20px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 9px; padding: 12px 16px; font-size: 13px; z-index: 200; transform: translateY(80px); opacity: 0; transition: all .3s; max-width: 300px; }
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { border-color: var(--green); color: var(--green); }
+.toast.error { border-color: var(--red); color: var(--red); }
+
+/* ── MOBILE MENU ── */
+#hamburger { display: none; background: none; border: none; color: var(--text); font-size: 20px; cursor: pointer; padding: 4px 8px; }
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 49; }
+
+@media (max-width: 700px) {
+  #sidebar { position: fixed; left: -230px; top: 0; bottom: 0; z-index: 50; transition: left .25s; width: 220px; }
+  #sidebar.open { left: 0; }
+  .sidebar-overlay.open { display: block; }
+  #hamburger { display: block; }
+  #content { padding: 12px; }
+  .qc-meta-grid { grid-template-columns: 1fr; }
+  .signer-row { grid-template-columns: 1fr; }
+  .dash-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── EMPTY STATE ── */
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text2); }
+.empty-icon { font-size: 40px; margin-bottom: 12px; }
+.empty-title { font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+.empty-sub { font-size: 13px; }
+
+/* scroll */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+select { appearance: none; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">IDIOT</div>
+      <div class="logo-sub">QUALITY CONTROL</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section">Menú</div>
+      <div class="nav-item active" data-view="home" onclick="navigate('home')">
+        <span class="icon">⊞</span> Productos
+      </div>
+      <div class="nav-item" data-view="dashboard" onclick="navigate('dashboard')">
+        <span class="icon">◈</span> Dashboard
+      </div>
+      <div class="nav-item" data-view="history" onclick="navigate('history')">
+        <span class="icon">≡</span> Historial
+      </div>
+      <div class="nav-item" data-view="config" onclick="navigate('config')">
+        <span class="icon">⚙</span> Configuración
+        <span id="sync-badge" style="width:7px;height:7px;border-radius:50%;margin-left:auto;background:var(--text3);flex-shrink:0"></span>
+      </div>
+      <div class="nav-section">Sesión activa</div>
+      <div id="active-session-nav" style="padding:8px;color:var(--text3);font-size:12px">Ninguna</div>
+    </div>
+  </nav>
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- MAIN -->
+  <div id="main">
+    <div id="topbar">
+      <button id="hamburger" onclick="toggleSidebar()">☰</button>
+      <div class="topbar-title" id="topbar-title">Seleccioná un producto</div>
+      <div class="topbar-meta" id="topbar-meta"></div>
+      <div id="topbar-actions"></div>
+    </div>
+    <div id="content"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal" id="modal-body"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// DATA: PRODUCTOS Y CHECKLISTS
+// ═══════════════════════════════════════════
+const PRODUCTS = {
+  OPS10: {
+    name: 'OPS 10"',
+    icon: '🖥️',
+    desc: 'Mini PC para señalización digital',
+    color: '#3b82f6',
+    sections: [
+      { id: 'test_mode', name: 'Test Mode', items: [
+        { id: 'TM-A', text: 'Control de color del LED del borde de pantalla', sev: 'M' },
+        { id: 'TM-B', text: 'Verificación del parlante: reproducir sonido', sev: 'M' },
+        { id: 'TM-C', text: 'Verificación del micrófono + reproducción de audio', sev: 'M' },
+        { id: 'TM-D', text: 'Verificación de cámara', sev: 'M' },
+        { id: 'TM-E', text: 'Cambiar a Modo Producción', sev: 'C' },
+      ]},
+      { id: 'test_internet', name: 'Test Internet', items: [
+        { id: 'TI-A', text: 'Conectarse a internet — verificar WiFi y Ethernet', sev: 'C' },
+        { id: 'TI-B', text: 'Verificar que el PIN del dispositivo se muestre y anotarlo', sev: 'C' },
+        { id: 'TI-C', text: 'Restauración de fábrica', sev: 'C' },
+        { id: 'TI-D', text: 'Saltar el modo de prueba e ir a pantalla de bienvenida', sev: 'M' },
+      ]},
+      { id: 'test_hw', name: 'Test Hardware', items: [
+        { id: 'TH-A', text: 'Pantalla sin rayones más allá del film protector', sev: 'M' },
+        { id: 'TH-B', text: 'Tapa trasera instalada correctamente', sev: 'm' },
+        { id: 'TH-C', text: 'Todos los puertos presentes y visualmente intactos', sev: 'M' },
+        { id: 'TH-D', text: 'Condición general de la fuente de alimentación OK', sev: 'C' },
+      ]},
+      { id: 'packing', name: 'Packing', items: [
+        { id: 'PK-A', text: 'S/N de la caja coincide con el del dispositivo', sev: 'C' },
+        { id: 'PK-B', text: 'Base de apoyo OPS (400044) y tornillos dentro de caja', sev: 'M' },
+        { id: 'PK-C', text: 'Tornillos de la base alineados con tuerca de tapa trasera', sev: 'M' },
+        { id: 'PK-D', text: 'Tornillos de tapa y base en bolsita dentro de la caja', sev: 'm' },
+        { id: 'PK-E', text: 'Fuente Huntkey 12V 5A (450064) dentro de la caja', sev: 'C' },
+        { id: 'PK-F', text: 'OPS embolsado con tapa trasera suelta y protección espuma', sev: 'M' },
+        { id: 'PK-G', text: 'Destornillador PH2 incluido en la caja', sev: 'm' },
+        { id: 'PK-H', text: 'Manual de usuario y folleto comercial incluidos', sev: 'm' },
+        { id: 'PK-I', text: 'Kit montaje en pared (4 tornillos y 4 tarugos) incluido', sev: 'M' },
+        { id: 'PK-J', text: 'Candado para check-in de riders incluido', sev: 'M' },
+        { id: 'PK-K', text: 'Chapa para check-in de riders incluida', sev: 'M' },
+      ]},
+    ]
+  },
+  OPS15: {
+    name: 'OPS 15"',
+    icon: '🖥️',
+    desc: 'Mini PC pantalla grande',
+    color: '#6366f1',
+    sections: [
+      { id: 'test_mode', name: 'Test Mode', items: [
+        { id: 'TM-A', text: 'Control de color del LED del borde de pantalla', sev: 'M' },
+        { id: 'TM-B', text: 'Verificación del parlante: reproducir sonido', sev: 'M' },
+        { id: 'TM-C', text: 'Verificación del micrófono + reproducción de audio', sev: 'M' },
+        { id: 'TM-D', text: 'Verificación de cámara', sev: 'M' },
+        { id: 'TM-E', text: 'Cambiar a Modo Producción', sev: 'C' },
+      ]},
+      { id: 'test_internet', name: 'Test Internet', items: [
+        { id: 'TI-A', text: 'Conectarse a internet — verificar WiFi y Ethernet', sev: 'C' },
+        { id: 'TI-B', text: 'Verificar que el PIN del dispositivo se muestre y anotarlo', sev: 'C' },
+        { id: 'TI-C', text: 'Restauración de fábrica', sev: 'C' },
+        { id: 'TI-D', text: 'Saltar el modo de prueba e ir a pantalla de bienvenida', sev: 'M' },
+      ]},
+      { id: 'test_hw', name: 'Test Hardware', items: [
+        { id: 'TH-A', text: 'Pantalla sin rayones más allá del film protector', sev: 'M' },
+        { id: 'TH-B', text: 'Tapa trasera instalada correctamente', sev: 'm' },
+        { id: 'TH-C', text: 'Todos los puertos presentes y visualmente intactos', sev: 'M' },
+        { id: 'TH-D', text: 'Condición general de la fuente de alimentación OK', sev: 'C' },
+      ]},
+      { id: 'packing', name: 'Packing', items: [
+        { id: 'PK-A', text: 'S/N de la caja coincide con el del dispositivo', sev: 'C' },
+        { id: 'PK-B', text: 'Base de apoyo OPS (400044) y tornillos dentro de caja', sev: 'M' },
+        { id: 'PK-C', text: 'Tornillos de la base alineados con tuerca de tapa trasera', sev: 'M' },
+        { id: 'PK-D', text: 'Tornillos de tapa y base en bolsita dentro de la caja', sev: 'm' },
+        { id: 'PK-E', text: 'Fuente Huntkey 12V 5A (450064) dentro de la caja', sev: 'C' },
+        { id: 'PK-F', text: 'OPS embolsado con tapa trasera suelta y protección espuma', sev: 'M' },
+        { id: 'PK-G', text: 'Destornillador PH2 incluido en la caja', sev: 'm' },
+        { id: 'PK-H', text: 'Manual de usuario y folleto comercial incluidos', sev: 'm' },
+        { id: 'PK-I', text: 'Kit montaje en pared (4 tornillos y 4 tarugos) incluido', sev: 'M' },
+      ]},
+    ]
+  },
+  POSV6: {
+    name: 'POS V6',
+    icon: '🏪',
+    desc: 'Tótem punto de venta V6',
+    color: '#22c55e',
+    sections: [
+      { id: 'base', name: 'Base del Tótem', items: [
+        { id: 'BA-1', text: 'Presencia de patas de goma', sev: 'M' },
+        { id: 'BA-2', text: 'Patas de goma no se despegan al arrastrar levemente', sev: 'M' },
+        { id: 'BA-3', text: 'Ajuste de bulones M8 fresados y M4 cilindro en la base', sev: 'C' },
+        { id: 'BA-4', text: 'Base sin pintura saltada', sev: 'm' },
+        { id: 'BA-5', text: 'Presencia de tapa inferior que oculta orificios de colgado', sev: 'm' },
+      ]},
+      { id: 'cajon_st', name: 'Cajón (sin tapa)', items: [
+        { id: 'CA-1', text: 'Lector QR bien pegado y centrado al orificio de la chapa', sev: 'C' },
+        { id: 'CA-2', text: 'Cable de alimentación del lector QR bien conectado', sev: 'C' },
+        { id: 'CA-3', text: 'Tornillos de impresora correctamente apretados', sev: 'M' },
+        { id: 'CA-4', text: 'Impresora con papel bien colocado', sev: 'C' },
+        { id: 'CA-5', text: 'Llave abre y cierra correctamente la puerta de impresora', sev: 'M' },
+        { id: 'CA-6', text: 'Conexión correcta de cables que alimentan la impresora', sev: 'C' },
+        { id: 'CA-7', text: 'Cables de impresora y lector QR salen por orificio cuadrado', sev: 'M' },
+        { id: 'CA-8', text: 'Pegado de conectores en impresora y lector QR', sev: 'M' },
+      ]},
+      { id: 'posterior_st', name: 'Posterior pantalla (sin tapa)', items: [
+        { id: 'PP-1', text: 'PCB NO montado con arandelas', sev: 'C' },
+        { id: 'PP-2', text: 'Tornillos que sostienen el PCB con apriete correcto', sev: 'C' },
+        { id: 'PP-3', text: 'Barrel jack correctamente conectado (AIO/PRINTER/INPUT)', sev: 'C' },
+        { id: 'PP-4', text: 'Tornillos M4 cilindro con apriete correcto (pantalla/fuente/organizador)', sev: 'M' },
+        { id: 'PP-5', text: 'Fuente a 90° con etiqueta del lado chapa, salida apuntando arriba', sev: 'M' },
+        { id: 'PP-6', text: 'Cables ordenados y sujetados con precintos', sev: 'm' },
+        { id: 'PP-7', text: 'Soportes de fuente con gomaeva', sev: 'm' },
+        { id: 'PP-8', text: 'USB auxiliar en parte superior derecha con tornillos apretados', sev: 'm' },
+        { id: 'PP-9', text: 'Antena superior con arandela plástica y glover bronce', sev: 'M' },
+      ]},
+      { id: 'tapas', name: 'Con tapas colocadas', items: [
+        { id: 'TP-1', text: 'Tapa queda a escuadra con el cajón al cerrar', sev: 'M' },
+        { id: 'TP-2', text: 'Ningún cable queda presionado al cerrar la tapa', sev: 'C' },
+        { id: 'TP-3', text: 'Tornillos M4 cilindro apretados con arandelas biseladas', sev: 'M' },
+        { id: 'TP-4', text: 'Bulones M4 no están redondeados', sev: 'M' },
+        { id: 'TP-5', text: 'Cable de alimentación sale por ranura inferior de tapa', sev: 'M' },
+        { id: 'TP-6', text: 'Cable de alimentación mide ~60cm desde chapa hasta enchufe', sev: 'M' },
+        { id: 'TP-7', text: 'Etiqueta en pantalla AIO coincide con la del POS', sev: 'C' },
+        { id: 'TP-8', text: 'Bulones M8 laterales con cabeza botón y arandela biselada', sev: 'M' },
+      ]},
+      { id: 'encendido', name: 'Encendido / Funcional', items: [
+        { id: 'EF-1', text: 'Apertura y cierre correcto de impresora', sev: 'M' },
+        { id: 'EF-2', text: 'Impresora bien montada en chapa (tornillos internos)', sev: 'M' },
+        { id: 'EF-3', text: 'Impresora con papel + corte de tickets OK', sev: 'C' },
+        { id: 'EF-4', text: 'Luces de impresora: no debe haber luz roja de error', sev: 'C' },
+        { id: 'EF-5', text: 'Luz encendida del lector QR', sev: 'C' },
+        { id: 'EF-6', text: 'QR no se despega al presionar levemente', sev: 'M' },
+        { id: 'EF-7', text: 'AIO de imagen correcta', sev: 'C' },
+        { id: 'EF-8', text: 'Botón ON/OFF inferior izquierdo funciona', sev: 'C' },
+        { id: 'EF-9', text: 'QC siguiendo indicaciones de pantalla paso a paso', sev: 'C' },
+        { id: 'EF-10', text: 'PIN enviado a IT para modo productivo', sev: 'C' },
+        { id: 'EF-11', text: 'Pruebas de flujo finales OK', sev: 'C' },
+      ]},
+      { id: 'embalaje', name: 'Embalaje', items: [
+        { id: 'EM-1', text: 'Etiquetas pegadas correctamente (impresora / pata inf izq / SN)', sev: 'M' },
+        { id: 'EM-2', text: 'Bolsa de componentes: llave, instructivo, tirafondos, llaves allen', sev: 'M' },
+        { id: 'EM-3', text: 'Presencia de base de tótem y accesorios de montaje', sev: 'M' },
+        { id: 'EM-4', text: 'Producto limpio', sev: 'm' },
+        { id: 'EM-5', text: 'Retoque de esmalte en pintura saltada', sev: 'm' },
+        { id: 'EM-6', text: 'Rótulos y señalética en caja de cartón', sev: 'm' },
+        { id: 'EM-7', text: 'Embalado según instructivo', sev: 'M' },
+        { id: 'EM-8', text: 'Caja con etiqueta S/N correspondiente al producto', sev: 'C' },
+      ]},
+    ]
+  },
+  POSV7: {
+    name: 'POS V7',
+    icon: '🏪',
+    desc: 'Tótem punto de venta V7',
+    color: '#10b981',
+    sections: [
+      { id: 'base', name: 'Base del Tótem', items: [
+        { id: 'BA-1', text: 'Presencia de patas de goma', sev: 'M' },
+        { id: 'BA-2', text: 'Patas de goma no se despegan al arrastrar levemente', sev: 'M' },
+        { id: 'BA-3', text: 'Ajuste de bulones M8 fresados y M4 cilindro en la base', sev: 'C' },
+        { id: 'BA-4', text: 'Base sin pintura saltada', sev: 'm' },
+        { id: 'BA-5', text: 'Presencia de tapa inferior que oculta orificios de colgado', sev: 'm' },
+      ]},
+      { id: 'cajon_st', name: 'Cajón (sin tapa)', items: [
+        { id: 'CA-1', text: 'Lector QR atornillado al soporte y centrado en orificio', sev: 'C' },
+        { id: 'CA-2', text: 'Cable de alimentación del lector QR bien conectado', sev: 'C' },
+        { id: 'CA-3', text: 'Tornillos de impresora correctamente apretados', sev: 'M' },
+        { id: 'CA-4', text: 'Impresora con papel bien colocado', sev: 'C' },
+        { id: 'CA-5', text: 'Llave abre y cierra correctamente la puerta de impresora', sev: 'M' },
+        { id: 'CA-6', text: 'Conexión correcta de cables que alimentan la impresora', sev: 'C' },
+        { id: 'CA-7', text: 'Cables de impresora y lector QR conectados al HUB y Splitter', sev: 'C' },
+        { id: 'CA-8', text: 'Presencia de Splitter V3', sev: 'C' },
+        { id: 'CA-9', text: 'Sujeción del Splitter V3 con tuercas en parte superior cajón', sev: 'M' },
+        { id: 'CA-10', text: 'Presencia de 3DP de agarre de HUB USB-C', sev: 'M' },
+        { id: 'CA-11', text: 'USB-C sale por orificio de 3DP y está conectado al KC', sev: 'C' },
+        { id: 'CA-12', text: 'Etiqueta de impresora y supply IN / screen OUT presente', sev: 'm' },
+        { id: 'CA-13', text: 'Etiqueta del equipo presente debajo del cajón', sev: 'M' },
+      ]},
+      { id: 'posterior_st', name: 'Posterior pantalla (sin tapa)', items: [
+        { id: 'PP-1', text: 'Barrel jack conectado: entrada pantalla → Splitter screen OUT / fuente → supply IN', sev: 'C' },
+        { id: 'PP-2', text: 'Tornillos M4 cilindro correctos (pantalla, prensacables, organizador)', sev: 'M' },
+        { id: 'PP-3', text: 'Fuente sujeta con gancho sin movimiento, salida 24V mirando abajo', sev: 'M' },
+        { id: 'PP-4', text: 'Tornillos M2 conectan AIO con módulo con apriete correcto', sev: 'M' },
+        { id: 'PP-5', text: 'Prensacable presente y entrada de fuente prensada', sev: 'M' },
+        { id: 'PP-6', text: 'Etiqueta model and brand en costado de pata', sev: 'm' },
+        { id: 'PP-7', text: 'Roscado M5 en agujeros de sujeción del point OK', sev: 'M' },
+      ]},
+      { id: 'tapas', name: 'Con tapas colocadas', items: [
+        { id: 'TP-1', text: 'Tapa queda a escuadra con el cajón al cerrar', sev: 'M' },
+        { id: 'TP-2', text: 'Ningún cable queda presionado al cerrar la tapa', sev: 'C' },
+        { id: 'TP-3', text: 'Tornillos M4 cilindro apretados con arandelas biseladas', sev: 'M' },
+        { id: 'TP-4', text: 'Bulones M4 no están redondeados', sev: 'M' },
+        { id: 'TP-5', text: 'Tecla ON/OFF sale por orificio de la tapa', sev: 'M' },
+        { id: 'TP-6', text: 'Cable de alimentación sale por ranura inferior de tapa', sev: 'M' },
+        { id: 'TP-7', text: 'Cable de alimentación mide ~60cm desde chapa hasta enchufe', sev: 'M' },
+        { id: 'TP-8', text: 'Tornillos M4 cilindro de chapa bien ajustados', sev: 'M' },
+      ]},
+      { id: 'encendido', name: 'Encendido / Funcional', items: [
+        { id: 'EF-1', text: 'Apertura y cierre correcto de impresora', sev: 'M' },
+        { id: 'EF-2', text: 'Impresora bien montada en chapa (tornillos internos)', sev: 'M' },
+        { id: 'EF-3', text: 'Impresora con papel + corte de tickets OK', sev: 'C' },
+        { id: 'EF-4', text: 'Luces de impresora: no debe haber luz roja de error', sev: 'C' },
+        { id: 'EF-5', text: 'Luz encendida del lector QR', sev: 'C' },
+        { id: 'EF-6', text: 'QR no se despega al presionar levemente', sev: 'M' },
+        { id: 'EF-7', text: 'KC con imagen correcta', sev: 'C' },
+        { id: 'EF-8', text: 'Botón ON/OFF trasero del cajón funciona', sev: 'C' },
+        { id: 'EF-9', text: 'Prueba WiFi y ETH OK', sev: 'C' },
+        { id: 'EF-10', text: 'Configuración del dispositivo realizada', sev: 'C' },
+      ]},
+      { id: 'embalaje', name: 'Embalaje', items: [
+        { id: 'EM-1', text: 'Etiquetas pegadas: impresora / pata inf izq / SN debajo cajón', sev: 'M' },
+        { id: 'EM-2', text: 'Bolsa: llave impresora, 4 tirafondos 5/16", 4 arandelas M8, 2 llaves allen, percha, 4 tornillos M8x12, Cenefa Grido', sev: 'M' },
+        { id: 'EM-3', text: 'Presencia de base de tótem', sev: 'M' },
+        { id: 'EM-4', text: 'Producto limpio', sev: 'm' },
+        { id: 'EM-5', text: 'Retoque de esmalte en pintura saltada', sev: 'm' },
+        { id: 'EM-6', text: 'Rótulos y señalética en caja de cartón', sev: 'm' },
+        { id: 'EM-7', text: 'Embalado según instructivo', sev: 'M' },
+        { id: 'EM-8', text: 'Caja con etiqueta S/N correspondiente al producto', sev: 'C' },
+      ]},
+      { id: 'caja1', name: 'Caja 1 — Packaging adicional', items: [
+        { id: 'C1-1', text: 'Soporte para Payway (3 chapas) presente', sev: 'M' },
+        { id: 'C1-2', text: 'Soporte MP (3 chapas) presente', sev: 'M' },
+        { id: 'C1-3', text: 'Materiales: tornillos cilindro M4x12, botón M5x12, phillips M2x8, arandelas M2, tuercas M3, fresados M3, instructivo, cables Payway/MP', sev: 'M' },
+        { id: 'C1-4', text: 'OPS 15" con fuente y soporte', sev: 'C' },
+        { id: 'C1-5', text: 'Turnero con fuente, soporte y HDMI', sev: 'C' },
+        { id: 'C1-6', text: 'Check-in con chapa y candado', sev: 'C' },
+      ]},
+    ]
+  },
+  BOX: {
+    name: 'BOX V5',
+    icon: '📦',
+    desc: 'Cabina de atención automatizada',
+    color: '#e879f9',
+    sections: [
+      { id: 'atras_apagado', name: 'Parte trasera — apagado', items: [
+        { id: 'BA-1',  text: 'Apriete del motor, tensión de correa y alineación', sev: 'C' },
+        { id: 'BA-2',  text: 'Cables de placa NO en contacto con correa y polea', sev: 'C' },
+        { id: 'BA-3',  text: 'Apriete de gusano de polea con loctite', sev: 'C' },
+        { id: 'BA-4',  text: 'Presencia y dirección correcta de salidas USB y UTP (lado izquierdo)', sev: 'M' },
+        { id: 'BA-5',  text: 'Presencia de 3D prints M5x25 haciendo tope con el BOX', sev: 'M' },
+        { id: 'BA-6',  text: 'LED pipe no colisiona con LED de estado', sev: 'M' },
+        { id: 'BA-7',  text: 'Balastro UV quitado', sev: 'C' },
+        { id: 'BA-8',  text: 'Pegado de LED pipe con glue gun desde el interior', sev: 'M' },
+        { id: 'BA-9',  text: 'Capacitor de placa NO en contacto con el BOX', sev: 'C' },
+        { id: 'BA-10', text: 'Puerta trasera con separador 3DP (3D_27) en la bisagra', sev: 'M' },
+        { id: 'BA-11', text: 'Imán del MagLock con 2 tornillos de fijación (anti-rotación)', sev: 'C' },
+        { id: 'BA-12', text: 'Estado de rosca en tuercas remache M5 de tapa trasera OK', sev: 'M' },
+        { id: 'BA-13', text: 'Apriete de tuerca de llave MAN/Auto', sev: 'M' },
+        { id: 'BA-14', text: 'Apriete x3 tuercas de escuadra soporte IBOX (con arandelas biseladas / estrellas / tuercas)', sev: 'C' },
+        { id: 'BA-15', text: 'Último pin de ficha de alimentación tapado con glue gun (pin más abajo)', sev: 'C' },
+        { id: 'BA-16', text: 'Pines de placas IR (atrás de IBOX) NO en contacto con escuadra soporte IBOX', sev: 'C' },
+        { id: 'BA-17', text: 'Escuadra NO aprieta cables de TLCD, maglock ni reed switch', sev: 'C' },
+      ]},
+      { id: 'adelante_apagado', name: 'Parte delantera — apagado', items: [
+        { id: 'AD-1', text: 'Presencia de seeger en ruedas de TLCD', sev: 'M' },
+        { id: 'AD-2', text: 'Estado de 3D prints de obstrucción 2 OK', sev: 'M' },
+        { id: 'AD-3', text: 'Apriete del tornillo que sostiene IR de obstrucción 2', sev: 'M' },
+        { id: 'AD-4', text: 'Luces parejas en TLCD', sev: 'M' },
+        { id: 'AD-5', text: 'Altura de escuadra que contiene OBS 3 ajustada', sev: 'M' },
+        { id: 'AD-6', text: 'Estado OBS 1 y 3: burlete, fijación LEDs IR con MS, cableado', sev: 'C' },
+        { id: 'AD-7', text: 'Presencia de burlete detrás de OBS 1 (guillotina)', sev: 'M' },
+        { id: 'AD-8', text: 'Apriete de tuercas de guías de ruedas TLCD', sev: 'M' },
+      ]},
+      { id: 'techo_apagado', name: 'Techo — apagado', items: [
+        { id: 'TC-1',  text: 'Finales de carrera (CN20): posición correcta, cableados y en contacto con patín 3D_6', sev: 'C' },
+        { id: 'TC-2',  text: 'Tornillo de bolas engrasado con grasa de litio', sev: 'M' },
+        { id: 'TC-3',  text: 'Presencia de pieza 3DP entre cadena IGUS y cursor', sev: 'M' },
+        { id: 'TC-4',  text: 'Tensión y organización de cables en general OK', sev: 'M' },
+        { id: 'TC-5',  text: 'Ningún cable sobresale del producto', sev: 'M' },
+        { id: 'TC-6',  text: 'Exceso de precintos cortado', sev: 'm' },
+        { id: 'TC-7',  text: 'Tornillos M3 de protección RPi presentes', sev: 'M' },
+        { id: 'TC-8',  text: 'Disipadores RPi presentes (1 grande + 1 chico)', sev: 'M' },
+        { id: 'TC-9',  text: 'Organizadores de cables en cadena IGUS: ningún cable apretado', sev: 'M' },
+        { id: 'TC-10', text: 'Motor SIN capacitor amarillo', sev: 'C' },
+        { id: 'TC-11', text: 'Mangueras y nebulizadores quitados (si los contiene)', sev: 'M' },
+        { id: 'TC-12', text: 'Cableado de aterrado realizado en motor, cursor y bancada', sev: 'C' },
+        { id: 'TC-13', text: 'Continuidad medida desde motor, cursor y bancada a bornera inferior izquierda (descarga a tierra)', sev: 'C' },
+      ]},
+      { id: 'interior_apagado', name: 'Interior — apagado', items: [
+        { id: 'IN-1', text: 'Posición de placa TLCD: ficha HDMI (STD_5) recta respecto a escuadra (34/35) y asegurada con precinto', sev: 'C' },
+        { id: 'IN-2', text: 'Presencia de M5 Rivet Spacer (3D_4) en tuercas remache de placa TLCD x2', sev: 'M' },
+        { id: 'IN-3', text: 'Presencia y apriete de 4 tornillos M3 de fijación de placa TLCD', sev: 'M' },
+        { id: 'IN-4', text: 'Ningún elemento (precinto/tornillo) en escuadra TLCD (34/35) raspando contra techo (3)', sev: 'M' },
+        { id: 'IN-5', text: 'HDMI pegado con escuadra plástica para asegurar posición', sev: 'M' },
+        { id: 'IN-6', text: 'Controladora TLCD con barrel jack 2.5 hembra para conexión correcta', sev: 'C' },
+        { id: 'IN-7', text: 'Bifaz TLCD y chapa pegados', sev: 'M' },
+        { id: 'IN-8', text: 'Posición correcta de luces COB', sev: 'M' },
+        { id: 'IN-9', text: 'Disipador placa TLCD presente (1 grande)', sev: 'M' },
+      ]},
+      { id: 'atras_encendido', name: 'Parte trasera — encendido', items: [
+        { id: 'AE-1', text: 'Ángulo de apertura del backdoor en contacto con limitador OK', sev: 'M' },
+        { id: 'AE-2', text: 'Luz entre puerta trasera abierta y piso BOX / regulación de puerta con oblongos y escuadras laterales', sev: 'M' },
+        { id: 'AE-3', text: 'Sensor backdoor switch funciona correctamente en las 2 posiciones extremas laterales', sev: 'C' },
+        { id: 'AE-4', text: 'M6 fresado para imán retensor con contratuerca + apriete OK', sev: 'M' },
+        { id: 'AE-5', text: 'Dirección de apertura de pantalla correcta (polaridad cables motor) por pulsos', sev: 'C' },
+        { id: 'AE-6', text: 'Curva de aceleración de apertura y cierre de pantalla OK', sev: 'C' },
+        { id: 'AE-7', text: 'Ruedas del TLCD funcionan correctamente en sus guías', sev: 'M' },
+        { id: 'AE-8', text: 'Color LED Pipe correcto: Verde=Auto / Rojo=Manual / Amarillo=OBS / Blanco=BackDoor Open / Azul=Mantenimiento', sev: 'C' },
+        { id: 'AE-9', text: 'Tapa trasera del BOX actualizada', sev: 'M' },
+      ]},
+      { id: 'adelante_encendido', name: 'Parte delantera — encendido', items: [
+        { id: 'DE-1', text: 'En modo mantenimiento: valores de OBS correctos y funcionamiento OK', sev: 'C' },
+        { id: 'DE-2', text: 'Bug obstrucciones: desenchufar OBS 1 y verificar que vuelve a enlazar', sev: 'C' },
+        { id: 'DE-3', text: 'Pantalla: imagen y touch funcionando correctamente (procedimiento de validación touch)', sev: 'C' },
+        { id: 'DE-4', text: 'Luces COB funcionan correctamente', sev: 'M' },
+        { id: 'DE-5', text: 'Pantalla sin marcas por exceso de apriete', sev: 'M' },
+        { id: 'DE-6', text: 'Prueba de touch del TLCD realizada', sev: 'C' },
+      ]},
+      { id: 'techo_encendido', name: 'Techo — encendido', items: [
+        { id: 'TE-1', text: 'Tensión de cables dentro de cadena IGUS correcta al abrir y cerrar pantalla', sev: 'C' },
+        { id: 'TE-2', text: 'Dumpers de bancada: ajuste (tuerca M5) y alineación encuadre de pantalla a lo largo del movimiento lineal', sev: 'C' },
+      ]},
+      { id: 'antes_cerrar', name: 'Antes de cerrar', items: [
+        { id: 'AC-1',  text: 'Ajuste de todos los tornillos y tuercas del producto', sev: 'C' },
+        { id: 'AC-2',  text: 'Prueba de estrés de obstrucciones y motor durante 48 horas', sev: 'C' },
+        { id: 'AC-3',  text: 'Prueba de flujos con el equipo en automático', sev: 'C' },
+        { id: 'AC-4',  text: 'Water tank sin líquido y limpio', sev: 'M' },
+        { id: 'AC-5',  text: 'Versión de firmware identificada y anotada en Devices', sev: 'C' },
+        { id: 'AC-6',  text: 'Retoque de pintura saltada con esmalte blanco', sev: 'm' },
+        { id: 'AC-7',  text: 'Llave Man/Auto con llavero I+DIoT', sev: 'm' },
+        { id: 'AC-8',  text: 'Etiquetas de S/N presentes: Equipo, Placa iBox, RPi, TLCD', sev: 'C' },
+        { id: 'AC-9',  text: 'S/N de Equipo vinculado a componentes (padre-hijos) en tablero Devices en Monday', sev: 'C' },
+        { id: 'AC-10', text: 'Etiqueta de producto pegada en caja de transporte', sev: 'M' },
+        { id: 'AC-11', text: 'Revestimiento plástico frontal presente en packing', sev: 'M' },
+        { id: 'AC-12', text: 'Equipo limpio internamente con alcohol y paño', sev: 'm' },
+        { id: 'AC-13', text: 'Panel frontal de revestimiento + 2 jeringas con adhesivo MS presentes', sev: 'M' },
+        { id: 'AC-14', text: '3D prints para transporte en ruedas de puerta TLCD presentes', sev: 'M' },
+      ]},
+    ]
+  },
+  IBOX: {
+    name: 'QC IBOX',
+    icon: '🔧',
+    desc: 'Placa controladora IBOX',
+    color: '#f97316',
+    sections: [
+      { id: 'frente_apagado', name: 'Frente IBOX — apagada', items: [
+        { id: 'FA-1', text: 'Capacitor SMD cercano a ficha de alimentación presente (NO el through-hole grande)', sev: 'C' },
+        { id: 'FA-2', text: 'Capacitores de motor presentes', sev: 'C' },
+        { id: 'FA-3', text: 'Capacitores de 100nF entre IC12 e IC11 presentes', sev: 'C' },
+        { id: 'FA-4', text: 'Todas las borneras colocadas, soldadas y en buen estado', sev: 'C' },
+        { id: 'FA-5', text: 'Resistencia R59 cambiada por 4K7 (valor impreso: 472)', sev: 'C' },
+        { id: 'FA-6', text: 'Corte de Ground del teclado para grabar por SPI realizado', sev: 'C' },
+        { id: 'FA-7', text: '12V+ extraído y colocado en PIN N°1 del encoder', sev: 'C' },
+      ]},
+      { id: 'atras_apagado_ib', name: 'Atrás IBOX — apagada', items: [
+        { id: 'AA-1', text: 'Pines de placas IR (atrás de IBOX) cortados y aislados con cinta aisladora', sev: 'C' },
+        { id: 'AA-2', text: 'Ocho capacitores en parte trasera izquierda colocados', sev: 'C' },
+        { id: 'AA-3', text: 'Último pin de alimentación en bornera CN1 tapado con silicona (5to desde arriba)', sev: 'C' },
+        { id: 'AA-4', text: 'Retrabajo completo: capacitores, R59, 12V+ encoder, corte GND teclado', sev: 'C' },
+      ]},
+      { id: 'frente_encendido_ib', name: 'Frente IBOX — encendida', items: [
+        { id: 'FE-1',  text: 'Todos los periféricos conectados a la placa IBOX', sev: 'C' },
+        { id: 'FE-2',  text: 'Último firmware estable grabado', sev: 'C' },
+        { id: 'FE-3',  text: 'Luces testigo de los FCCA encendidas', sev: 'C' },
+        { id: 'FE-4',  text: 'Accionar FCC y verificar que luces testigo responden', sev: 'C' },
+        { id: 'FE-5',  text: 'Funcionamiento del buzzer probado desde la pantalla', sev: 'M' },
+        { id: 'FE-6',  text: 'Motor accionado correctamente', sev: 'C' },
+        { id: 'FE-7',  text: 'Estado del LED: Amarillo=obstruido / Blanco=puerta abierta / Azul=mantenimiento / Verde=automático / Rojo=manual', sev: 'C' },
+        { id: 'FE-8',  text: 'Funcionamiento de OBS 1, 2 y 3 — valores revisados', sev: 'C' },
+        { id: 'FE-9',  text: 'Corte de enlace de OBS y reconexión: verifica que vuelve a enlazar', sev: 'C' },
+        { id: 'FE-10', text: 'Centinelas de OBS 1, 2 y 3 controlados', sev: 'C' },
+        { id: 'FE-11', text: 'Modo automático y manual de la placa probados', sev: 'C' },
+        { id: 'FE-12', text: 'MagLock accionado correctamente', sev: 'C' },
+        { id: 'FE-13', text: 'Test touch realizado desde la pantalla', sev: 'C' },
+        { id: 'FE-14', text: 'Ciclado desde botonera de IBOX (2 min)', sev: 'C' },
+        { id: 'FE-15', text: 'Ciclado desde pantalla: 5 ciclos sin omitir OBS/MagLock + 5 ciclos omitiéndolos', sev: 'C' },
+        { id: 'FE-16', text: 'Velocidad y estabilidad de comunicación placa-Raspberry OK', sev: 'C' },
+      ]},
+    ]
+  },
+  TUR: {
+    name: 'Turnero V6',
+    icon: '📟',
+    desc: 'Dispositivo de gestión de turnos',
+    color: '#f59e0b',
+    sections: [
+      { id: 'test_hw', name: 'Test Hardware', items: [
+        { id: 'TH-A', text: 'Equipo sin rayones ni golpes', sev: 'M' },
+        { id: 'TH-B', text: 'Puertos de conexión laterales en buen estado', sev: 'M' },
+        { id: 'TH-C', text: 'Patas de goma en parte inferior presentes', sev: 'm' },
+        { id: 'TH-D', text: 'Conectar HDMI y verificar imagen', sev: 'C' },
+        { id: 'TH-E', text: 'Conectividad a internet — red y Ethernet', sev: 'C' },
+      ]},
+      { id: 'packaging', name: 'Packaging', items: [
+        { id: 'PK-A', text: 'Turnero dentro de la caja', sev: 'C' },
+        { id: 'PK-B', text: 'Cable HDMI dentro de la caja', sev: 'M' },
+        { id: 'PK-C', text: 'Soporte VESA dentro de la caja', sev: 'M' },
+        { id: 'PK-D', text: 'Antenas dentro de la caja', sev: 'M' },
+        { id: 'PK-E', text: 'Kit de instalación dentro de la caja', sev: 'M' },
+        { id: 'PK-F', text: 'Fuente de alimentación dentro de la caja', sev: 'C' },
+      ]},
+    ]
+  }
+};
+
+const SEV_LABELS = { C: 'Crítico', M: 'Mayor', m: 'Menor' };
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let state = {
+  view: 'home',
+  currentProduct: null,
+  session: null,
+  sessions: [],
+  openSections: {},
+  weights: { C: 10, M: 3, m: 1 },
+  syncKey: null,
+  sbUrl: null,
+  sbAnonKey: null,
+  lastSync: null,
+};
+
+function saveState() {
+  try {
+    localStorage.setItem('idiot_qc', JSON.stringify({
+      sessions:   state.sessions,
+      weights:    state.weights,
+      syncKey:    state.syncKey,
+      sbUrl:      state.sbUrl,
+      sbAnonKey:  state.sbAnonKey,
+      lastSync:   state.lastSync,
+    }));
+  } catch(e) {}
+}
+function loadState() {
+  try {
+    const d = localStorage.getItem('idiot_qc');
+    if (d) {
+      const p = JSON.parse(d);
+      state.sessions  = p.sessions  || [];
+      if (p.weights)   state.weights   = p.weights;
+      if (p.syncKey)   state.syncKey   = p.syncKey;
+      if (p.sbUrl)     state.sbUrl     = p.sbUrl;
+      if (p.sbAnonKey) state.sbAnonKey = p.sbAnonKey;
+      if (p.lastSync)  state.lastSync  = p.lastSync;
+    }
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+function navigate(view, productId) {
+  state.view = view;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  const navEl = document.querySelector(`[data-view="${view}"]`);
+  if (navEl) navEl.classList.add('active');
+  closeSidebar();
+  if (view === 'home') renderHome();
+  else if (view === 'qc' && productId) startQC(productId);
+  else if (view === 'dashboard') renderDashboard();
+  else if (view === 'history') renderHistory();
+  else if (view === 'config') renderConfig();
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
+
+// ═══════════════════════════════════════════
+// HOME
+// ═══════════════════════════════════════════
+function renderHome() {
+  document.getElementById('topbar-title').textContent = 'Seleccioná un producto';
+  document.getElementById('topbar-meta').textContent = '';
+  document.getElementById('topbar-actions').innerHTML = '';
+  document.getElementById('active-session-nav').textContent = 'Ninguna';
+
+  const pending = state.sessions.filter(s => s.status === 'pending');
+
+  const c = document.getElementById('content');
+  c.innerHTML = `
+    ${pending.length ? `
+    <div style="margin-bottom:20px">
+      <div class="card-title" style="color:var(--amber);margin-bottom:10px">⏸ Pendientes de embalaje (${pending.length})</div>
+      <div class="card" style="padding:0;border-color:#f59e0b40">
+        ${pending.map(s => `
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px">
+            <span style="font-size:18px">${PRODUCTS[s.productId]?.icon || '📦'}</span>
+            <div style="flex:1">
+              <div style="font-weight:500">${PRODUCTS[s.productId]?.name || s.productId}</div>
+              <div style="font-size:11px;color:var(--text2);font-family:var(--mono)">S/N: ${s.sn || '—'} · ${calcFPY(s)}% FPY · guardado ${formatDate(s.savedAt||s.createdAt)}</div>
+            </div>
+            <button class="btn btn-ghost" style="font-size:12px;padding:5px 12px" onclick="resumeQC('${s.id}')">▶ Retomar</button>
+            <button class="btn btn-accent" style="font-size:12px;padding:5px 12px" onclick="closePackaging('${s.id}')">📦 Embalar</button>
+          </div>`).join('')}
+      </div>
+    </div>` : ''}
+
+    <div class="card-title" style="margin-bottom:12px">¿Qué vas a inspeccionar hoy?</div>
+    <div class="product-grid">
+      ${Object.entries(PRODUCTS).map(([id, p]) => {
+        const sessions = state.sessions.filter(s => s.productId === id && s.status !== 'pending');
+        const passed = sessions.filter(s => s.status === 'pass').length;
+        const pend = state.sessions.filter(s => s.productId === id && s.status === 'pending').length;
+        return `
+        <div class="product-card" onclick="navigate('qc','${id}')">
+          <div class="product-icon">${p.icon}</div>
+          <div class="product-name">${p.name}</div>
+          <div class="product-desc">${p.desc}</div>
+          <div class="product-stats">
+            <span class="stat-pill">${countChecks(id)} checks</span>
+            ${sessions.length ? `<span class="stat-pill" style="color:var(--green)">${passed}/${sessions.length} OK</span>` : ''}
+            ${pend ? `<span class="stat-pill" style="color:var(--amber)">${pend} pendiente${pend>1?'s':''}</span>` : ''}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+    ${state.sessions.filter(s => s.status !== 'pending').length ? `
+    <div class="card-title" style="margin-top:24px;margin-bottom:12px">Últimas inspecciones</div>
+    <div class="card" style="padding:0">
+      ${state.sessions.filter(s => s.status !== 'pending').slice(-5).reverse().map(s => sessionRow(s)).join('')}
+    </div>` : ''}
+  `;
+}
+
+function countChecks(productId) {
+  return PRODUCTS[productId].sections.reduce((a, s) => a + s.items.length, 0);
+}
+
+function resumeQC(sessionId) {
+  const sess = state.sessions.find(s => s.id === sessionId);
+  if (!sess) return;
+  startQC(sess.productId, sessionId);
+}
+
+function closePackaging(sessionId) {
+  const sess = state.sessions.find(s => s.id === sessionId);
+  if (!sess) return;
+  const p = PRODUCTS[sess.productId];
+  const failures = p ? p.sections.flatMap(s => s.items).filter(it => sess.checks[it.id]?.state === 'fail') : [];
+  const critFailed = failures.filter(it => it.sev === 'C').length;
+  const majorFailed = failures.filter(it => it.sev === 'M').length;
+
+  showModal(`
+    <div class="modal-title">📦 Confirmar embalaje</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:16px">
+      Marcás este equipo como <strong>finalizado y embalado</strong>.<br>
+      <span style="font-family:var(--mono)">${PRODUCTS[sess.productId]?.name} · S/N: ${sess.sn}</span>
+    </p>
+    ${failures.length ? `
+    <div style="padding:10px;background:var(--red-dim);border-radius:8px;margin-bottom:14px;font-size:12px;color:var(--red)">
+      ⚠ Tiene ${critFailed} defecto${critFailed!==1?'s':''} crítico${critFailed!==1?'s':''} y ${majorFailed} mayor${majorFailed!==1?'es':''}
+    </div>` : `
+    <div style="padding:10px;background:var(--green-dim);border-radius:8px;margin-bottom:14px;font-size:12px;color:var(--green)">
+      ✓ Sin defectos detectados
+    </div>`}
+    <div style="margin-bottom:14px">
+      <div class="field-label">Embaló (nombre)</div>
+      <input class="field-input" id="packager-input" placeholder="Nombre de quien embaló">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-accent" onclick="confirmPackaging('${sessionId}')">Confirmar embalaje</button>
+    </div>
+  `);
+}
+
+function confirmPackaging(sessionId) {
+  const packager = document.getElementById('packager-input')?.value.trim() || '';
+  const sess = state.sessions.find(s => s.id === sessionId);
+  if (!sess) return;
+
+  const p = PRODUCTS[sess.productId];
+  const failures = p ? p.sections.flatMap(s => s.items).filter(it => sess.checks[it.id]?.state === 'fail') : [];
+  const critFailed = failures.filter(it => it.sev === 'C').length;
+  const majorFailed = failures.filter(it => it.sev === 'M').length;
+
+  sess.status = (critFailed > 0 || majorFailed > 3) ? 'fail' : 'pass';
+  sess.embaló = packager;
+  sess.finishedAt = new Date().toISOString();
+  sess.fpy = calcFPY(sess);
+
+  saveState();
+  pushSession(sess);
+  closeModal();
+  showToast(`${sess.status === 'pass' ? '✓ Aprobado' : '✗ Rechazado'} y embalado`, sess.status === 'pass' ? 'success' : 'error');
+  renderHome();
+}
+
+function sessionRow(s) {
+  const fpy = calcFPY(s);
+  const statusMap = {
+    pass:    ['status-pass',   'APROBADO'],
+    fail:    ['status-fail',   'RECHAZADO'],
+    pending: ['status-wip',    'PEND. EMBALAJE'],
+    wip:     ['status-wip',    'EN CURSO'],
+  };
+  const [cls, txt] = statusMap[s.status] || statusMap.wip;
+  return `<div class="history-row" onclick="viewSession('${s.id}')">
+    <span class="hist-product">${PRODUCTS[s.productId]?.name || s.productId}</span>
+    <span class="hist-sn">${s.sn || '—'}</span>
+    <span class="status-badge ${cls}">${txt}</span>
+    <span class="hist-fpy" style="color:${fpy >= 95 ? 'var(--green)' : fpy >= 80 ? 'var(--amber)' : 'var(--red)'}">${fpy}%</span>
+    <span class="hist-date">${formatDate(s.createdAt)}</span>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════
+// QC SESSION
+// ═══════════════════════════════════════════
+function startQC(productId, resumeId = null) {
+  const p = PRODUCTS[productId];
+  state.currentProduct = productId;
+
+  if (resumeId) {
+    // Resume an existing pending session
+    const existing = state.sessions.find(s => s.id === resumeId);
+    if (existing) {
+      state.session = JSON.parse(JSON.stringify(existing)); // deep clone
+      // Remove from saved sessions while editing
+      state.sessions = state.sessions.filter(s => s.id !== resumeId);
+      saveState();
+    }
+  } else {
+    state.session = {
+      id: Date.now().toString(),
+      productId,
+      sn: '',
+      pin: '',
+      armo: '',
+      reviso: '',
+      createdAt: new Date().toISOString(),
+      checks: {},
+      status: 'wip',
+    };
+  }
+
+  state.openSections = {};
+  p.sections.forEach((s,i) => { if(i===0) state.openSections[s.id] = true; });
+  renderQC();
+}
+
+function pauseQC() {
+  // Save current session as 'pending' (pendiente embalaje)
+  const sess = state.session;
+  if (!sess.sn) { showToast('Ingresá el S/N antes de guardar', 'error'); return; }
+  sess.status = 'pending';
+  sess.savedAt = new Date().toISOString();
+  sess.fpy = calcFPY(sess);
+  state.sessions.push(sess);
+  saveState();
+  state.session = null;
+  pushSession(sess);
+  showToast('QC guardado — podés retomarlo desde el inicio', 'success');
+  navigate('home');
+}
+
+function renderQC() {
+  const productId = state.currentProduct;
+  const p = PRODUCTS[productId];
+  const sess = state.session;
+
+  const total = countChecks(productId);
+  const done = Object.values(sess.checks).filter(c => c.state !== null).length;
+  const failed = Object.values(sess.checks).filter(c => c.state === 'fail').length;
+  const critFailed = p.sections.flatMap(s => s.items)
+    .filter(it => sess.checks[it.id]?.state === 'fail' && it.sev === 'C').length;
+  const pct = total ? Math.round(done/total*100) : 0;
+
+  document.getElementById('topbar-title').textContent = `QC — ${p.name}`;
+  document.getElementById('topbar-meta').textContent = `${done}/${total} checks`;
+  document.getElementById('topbar-actions').innerHTML = `
+    <button class="btn btn-ghost" onclick="navigate('home')" style="margin-right:6px">← Volver</button>
+    <button class="btn btn-ghost" onclick="pauseQC()" style="margin-right:6px" title="Guardar en estado Pendiente embalaje">⏸ Guardar</button>
+    <button class="btn btn-accent" onclick="finishQC()">Finalizar QC</button>
+  `;
+  document.getElementById('active-session-nav').innerHTML = `
+    <div style="color:var(--accent);font-size:12px;font-weight:500">${p.name}</div>
+    <div style="color:var(--text3);font-size:11px;font-family:var(--mono)">${pct}% completado</div>
+  `;
+
+  const c = document.getElementById('content');
+  c.innerHTML = `
+    <!-- HEADER -->
+    <div class="qc-header">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <span style="font-size:22px">${p.icon}</span>
+        <div>
+          <div style="font-size:15px;font-weight:600">${p.name}</div>
+          <div style="font-size:11px;color:var(--text2)">${p.desc}</div>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          ${critFailed ? `<span style="color:var(--red);font-size:12px;font-weight:600">⚠ ${critFailed} crítico${critFailed>1?'s':''}</span>` : ''}
+          ${failed && !critFailed ? `<span style="color:var(--amber);font-size:12px">${failed} falla${failed>1?'s':''}</span>` : ''}
+        </div>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
+      <div style="font-size:11px;color:var(--text2);font-family:var(--mono);margin-bottom:12px">${pct}% — ${done} de ${total} checks completados</div>
+      
+      <div class="qc-meta-grid">
+        <div>
+          <div class="field-label">S/N del equipo</div>
+          <input class="field-input" id="field-sn" value="${sess.sn}" placeholder="Ej: OPS-2024-001" oninput="sess_field('sn',this.value)">
+        </div>
+        <div>
+          <div class="field-label">PIN del dispositivo</div>
+          <input class="field-input" id="field-pin" value="${sess.pin}" placeholder="——" oninput="sess_field('pin',this.value)">
+        </div>
+      </div>
+      <div class="signer-row">
+        <div>
+          <div class="field-label">Armó</div>
+          <input class="field-input" value="${sess.armo}" placeholder="Nombre de quien armó" oninput="sess_field('armo',this.value)">
+        </div>
+        <div>
+          <div class="field-label">Revisó</div>
+          <input class="field-input" value="${sess.reviso}" placeholder="Nombre de quien revisó" oninput="sess_field('reviso',this.value)">
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTIONS -->
+    ${p.sections.map(sec => renderSection(sec, sess)).join('')}
+
+    <div style="height:20px"></div>
+  `;
+}
+
+function renderSection(sec, sess) {
+  const total = sec.items.length;
+  const done = sec.items.filter(it => sess.checks[it.id]?.state !== undefined && sess.checks[it.id]?.state !== null).length;
+  const failed = sec.items.filter(it => sess.checks[it.id]?.state === 'fail').length;
+  const isOpen = state.openSections[sec.id];
+  
+  return `
+    <div class="qc-section">
+      <div class="section-header ${isOpen ? 'open' : ''}" onclick="toggleSection('${sec.id}')">
+        <span class="section-name">${sec.name}</span>
+        <span class="section-progress" style="color:${failed ? 'var(--red)' : done === total ? 'var(--green)' : 'var(--text2)'}">
+          ${failed ? `${failed} falla${failed>1?'s':''} · ` : ''}${done}/${total}
+        </span>
+        <span class="section-chevron">▼</span>
+      </div>
+      <div class="section-body ${isOpen ? 'open' : ''}">
+        ${sec.items.map(it => renderCheckItem(it, sess.checks[it.id])).join('')}
+      </div>
+    </div>`;
+}
+
+function renderCheckItem(item, check) {
+  const st = check?.state || null;
+  const note = check?.note || '';
+  const defType = check?.defectType || '';
+  const rowClass = st === 'ok' ? 'checked' : st === 'fail' ? 'failed' : '';
+
+  return `
+    <div class="check-item ${rowClass}" id="ci-${item.id}">
+      <div class="check-content">
+        <div class="check-label">
+          ${item.text}
+          <span class="check-severity sev-${item.sev}">${item.sev === 'C' ? '● Crítico' : item.sev === 'M' ? '◆ Mayor' : '○ Menor'}</span>
+        </div>
+        <div class="check-code">${item.id}</div>
+        ${st === 'fail' ? `
+          <div class="defect-note">
+            <select class="defect-select" onchange="setCheckField('${item.id}','defectType',this.value)">
+              <option value="">— Tipo de defecto —</option>
+              <option value="dimensional" ${defType==='dimensional'?'selected':''}>Dimensional / ajuste</option>
+              <option value="cosmetic" ${defType==='cosmetic'?'selected':''}>Cosmético / pintura</option>
+              <option value="electrical" ${defType==='electrical'?'selected':''}>Eléctrico / conexión</option>
+              <option value="functional" ${defType==='functional'?'selected':''}>Funcional / software</option>
+              <option value="packing" ${defType==='packing'?'selected':''}>Packaging / faltante</option>
+              <option value="other" ${defType==='other'?'selected':''}>Otro</option>
+            </select>
+            <input class="defect-input" style="margin-top:6px" placeholder="Descripción del defecto..." value="${note}" oninput="setCheckField('${item.id}','note',this.value)">
+          </div>` : ''}
+      </div>
+      <div class="check-actions">
+        <button class="mini-btn ${st==='ok'?'active-ok':''}" onclick="setCheck('${item.id}','ok')" title="OK">✓</button>
+        <button class="mini-btn ${st==='fail'?'active-fail':''}" onclick="setCheck('${item.id}','fail')" title="Falla">✗</button>
+      </div>
+    </div>`;
+}
+
+function sess_field(field, val) {
+  if (state.session) state.session[field] = val;
+}
+
+function toggleSection(secId) {
+  state.openSections[secId] = !state.openSections[secId];
+  renderQC();
+}
+
+function setCheck(itemId, val) {
+  if (!state.session.checks[itemId]) state.session.checks[itemId] = { state: null, note: '', defectType: '' };
+  // Toggle off if same
+  if (state.session.checks[itemId].state === val) {
+    state.session.checks[itemId].state = null;
+  } else {
+    state.session.checks[itemId].state = val;
+    if (val === 'ok') { state.session.checks[itemId].note = ''; state.session.checks[itemId].defectType = ''; }
+  }
+  // Re-render just the check item row in place
+  const p = PRODUCTS[state.currentProduct];
+  let item = null;
+  for (const sec of p.sections) {
+    item = sec.items.find(it => it.id === itemId);
+    if (item) break;
+  }
+  if (item) {
+    const el = document.getElementById(`ci-${itemId}`);
+    if (el) el.outerHTML = renderCheckItem(item, state.session.checks[itemId]);
+  }
+  // Update progress in topbar
+  const total = countChecks(state.currentProduct);
+  const done = Object.values(state.session.checks).filter(c => c.state !== null).length;
+  document.getElementById('topbar-meta').textContent = `${done}/${total} checks`;
+  // Update progress bar
+  const pct = total ? Math.round(done/total*100) : 0;
+  const pb = document.querySelector('.progress-bar');
+  if (pb) pb.style.width = pct + '%';
+  const ptext = document.querySelector('.progress-bar-wrap + div');
+  if (ptext) ptext.textContent = `${pct}% — ${done} de ${total} checks completados`;
+}
+
+function setCheckField(itemId, field, val) {
+  if (!state.session.checks[itemId]) state.session.checks[itemId] = { state: null, note: '', defectType: '' };
+  state.session.checks[itemId][field] = val;
+}
+
+function finishQC() {
+  const sess = state.session;
+  const p = PRODUCTS[state.currentProduct];
+  if (!sess.sn) { showToast('Ingresá el número de serie antes de finalizar', 'error'); return; }
+  if (!sess.armo) { showToast('Completá el campo "Armó"', 'error'); return; }
+
+  const total = countChecks(state.currentProduct);
+  const done = Object.values(sess.checks).filter(c => c.state !== null).length;
+  const failures = p.sections.flatMap(s => s.items).filter(it => sess.checks[it.id]?.state === 'fail');
+  const critFailed = failures.filter(it => it.sev === 'C').length;
+  const pct = total ? Math.round(done/total*100) : 0;
+
+  if (pct < 100) {
+    showModal(`
+      <div class="modal-title">Quedan checks sin completar</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Completaste ${done} de ${total} checks (${pct}%). ¿Querés finalizar igual o seguir revisando?</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal()">Seguir revisando</button>
+        <button class="btn btn-accent" onclick="confirmFinish()">Finalizar igual</button>
+      </div>
+    `);
+    return;
+  }
+  confirmFinish();
+}
+
+function confirmFinish() {
+  closeModal();
+  const sess = state.session;
+  const p = PRODUCTS[state.currentProduct];
+  const failures = p.sections.flatMap(s => s.items).filter(it => sess.checks[it.id]?.state === 'fail');
+  const critFailed = failures.filter(it => it.sev === 'C').length;
+  const majorFailed = failures.filter(it => it.sev === 'M').length;
+
+  // Determine status
+  if (critFailed > 0) sess.status = 'fail';
+  else if (majorFailed > 3) sess.status = 'fail';
+  else sess.status = 'pass';
+
+  sess.finishedAt = new Date().toISOString();
+  sess.fpy = calcFPY(sess);
+
+  state.sessions.push(sess);
+  saveState();
+  state.session = null;
+  pushSession(sess); // sync to Supabase
+
+  showResultModal(sess, failures);
+}
+
+function showResultModal(sess, failures) {
+  const pass = sess.status === 'pass';
+  const fpy = sess.fpy;
+  showModal(`
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:40px;margin-bottom:8px">${pass ? '✅' : '❌'}</div>
+      <div style="font-size:20px;font-weight:600;color:${pass ? 'var(--green)' : 'var(--red)'};margin-bottom:4px">
+        ${pass ? 'APROBADO' : 'RECHAZADO'}
+      </div>
+      <div style="font-size:13px;color:var(--text2)">S/N: ${sess.sn} · FPY: ${fpy}%</div>
+    </div>
+    ${failures.length ? `
+      <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px">DEFECTOS ENCONTRADOS (${failures.length})</div>
+      ${failures.map(it => `
+        <div style="display:flex;gap:8px;align-items:flex-start;padding:8px;background:var(--bg3);border-radius:7px;margin-bottom:6px;font-size:12px">
+          <span class="check-severity sev-${it.sev}">${it.sev}</span>
+          <span>${it.text}</span>
+        </div>`).join('')}
+    ` : '<div style="color:var(--green);font-size:13px;text-align:center">Sin defectos detectados 🎉</div>'}
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal();navigate('home')">Volver al inicio</button>
+      <button class="btn btn-accent" onclick="closeModal();navigate('dashboard')">Ver dashboard</button>
+    </div>
+  `);
+}
+
+function viewSession(id) {
+  const s = state.sessions.find(x => x.id === id);
+  if (!s) return;
+  const p = PRODUCTS[s.productId];
+  const failures = p ? p.sections.flatMap(sec => sec.items).filter(it => s.checks[it.id]?.state === 'fail') : [];
+  const fpy = calcFPY(s);
+  showModal(`
+    <div class="modal-title">${p?.name || s.productId} — ${s.sn}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;font-size:12px">
+      <div><span style="color:var(--text3)">Armó:</span> ${s.armo || '—'}</div>
+      <div><span style="color:var(--text3)">Revisó:</span> ${s.reviso || '—'}</div>
+      <div><span style="color:var(--text3)">Fecha:</span> ${formatDate(s.createdAt)}</div>
+      <div><span style="color:var(--text3)">FPY:</span> <span style="color:${fpy>=95?'var(--green)':fpy>=80?'var(--amber)':'var(--red)'}">${fpy}%</span></div>
+    </div>
+    ${failures.length ? `
+      <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px">Defectos (${failures.length})</div>
+      ${failures.map(it => `
+        <div style="padding:8px;background:var(--bg3);border-radius:7px;margin-bottom:6px;font-size:12px">
+          <div style="display:flex;gap:6px;align-items:center">
+            <span class="check-severity sev-${it.sev}">${it.sev}</span>
+            <span style="font-weight:500">${it.text}</span>
+          </div>
+          ${s.checks[it.id]?.note ? `<div style="color:var(--text2);margin-top:4px">${s.checks[it.id].note}</div>` : ''}
+        </div>`).join('')}
+    ` : '<div style="color:var(--green);font-size:13px">Sin defectos ✓</div>'}
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cerrar</button>
+    </div>
+  `);
+}
+
+// ═══════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════
+function renderDashboard() {
+  document.getElementById('topbar-title').textContent = 'Dashboard';
+  document.getElementById('topbar-meta').textContent = '';
+  document.getElementById('topbar-actions').innerHTML = '';
+
+  const sessions = state.sessions;
+  const total = sessions.length;
+  const passed = sessions.filter(s => s.status === 'pass').length;
+  const failed = sessions.filter(s => s.status === 'fail').length;
+  const wip = sessions.filter(s => s.status === 'wip').length;
+  const avgFPY = total ? Math.round(sessions.reduce((a,s) => a + calcFPY(s), 0) / total) : 0;
+
+  // Defect breakdown
+  const allDefects = [];
+  sessions.forEach(s => {
+    const p = PRODUCTS[s.productId];
+    if (!p) return;
+    p.sections.flatMap(sec => sec.items).forEach(it => {
+      if (s.checks[it.id]?.state === 'fail') {
+        allDefects.push({ ...it, defectType: s.checks[it.id].defectType, product: s.productId });
+      }
+    });
+  });
+  const critCount = allDefects.filter(d => d.sev === 'C').length;
+  const majorCount = allDefects.filter(d => d.sev === 'M').length;
+  const minorCount = allDefects.filter(d => d.sev === 'm').length;
+
+  // Top defects
+  const defectFreq = {};
+  allDefects.forEach(d => { defectFreq[d.text] = (defectFreq[d.text] || 0) + 1; });
+  const topDefects = Object.entries(defectFreq).sort((a,b) => b[1]-a[1]).slice(0,5);
+
+  // FPY by product
+  const fypByProduct = {};
+  Object.keys(PRODUCTS).forEach(id => {
+    const ps = sessions.filter(s => s.productId === id && s.status !== 'wip');
+    if (ps.length) fypByProduct[id] = Math.round(ps.reduce((a,s) => a + calcFPY(s), 0) / ps.length);
+  });
+
+  const c = document.getElementById('content');
+  c.innerHTML = `
+    <div class="dash-grid">
+      <div class="metric-card">
+        <div class="metric-label">Total QC</div>
+        <div class="metric-value metric-accent">${total}</div>
+        <div class="metric-sub">inspecciones</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">FPY promedio</div>
+        <div class="metric-value ${avgFPY>=95?'metric-green':avgFPY>=80?'metric-amber':'metric-red'}">${total ? avgFPY+'%' : '—'}</div>
+        <div class="metric-sub">First Pass Yield</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Aprobados</div>
+        <div class="metric-value metric-green">${passed}</div>
+        <div class="metric-sub">${total ? Math.round(passed/total*100) : 0}% del total</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Rechazados</div>
+        <div class="metric-value metric-red">${failed}</div>
+        <div class="metric-sub">${total ? Math.round(failed/total*100) : 0}% del total</div>
+      </div>
+    </div>
+
+    ${allDefects.length ? `
+    <div class="card">
+      <div class="card-title">Defectos por severidad</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px">
+          <span class="check-severity sev-C">C</span>
+          <span>${critCount} críticos</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px">
+          <span class="check-severity sev-M">M</span>
+          <span>${majorCount} mayores</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px">
+          <span class="check-severity sev-m">m</span>
+          <span>${minorCount} menores</span>
+        </div>
+      </div>
+      ${topDefects.length ? `
+      <div class="card-title" style="margin-top:16px">Top defectos (Pareto)</div>
+      ${topDefects.map(([txt, cnt]) => `
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12px">
+          <div style="flex:1;color:var(--text2)">${txt}</div>
+          <div class="progress-bar-wrap" style="width:80px"><div class="progress-bar" style="width:${Math.round(cnt/topDefects[0][1]*100)}%;background:var(--red)"></div></div>
+          <div style="color:var(--red);font-family:var(--mono);min-width:20px;text-align:right">${cnt}</div>
+        </div>`).join('')}
+      ` : ''}
+    </div>
+    ` : ''}
+
+    ${Object.keys(fypByProduct).length ? `
+    <div class="card">
+      <div class="card-title">FPY por producto</div>
+      ${Object.entries(fypByProduct).map(([id, fpy]) => `
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:13px">
+          <span style="min-width:80px;font-weight:500">${PRODUCTS[id].name}</span>
+          <div class="progress-bar-wrap" style="flex:1"><div class="progress-bar" style="width:${fpy}%;background:${fpy>=95?'var(--green)':fpy>=80?'var(--amber)':'var(--red)'}"></div></div>
+          <span style="font-family:var(--mono);font-size:12px;min-width:42px;text-align:right;color:${fpy>=95?'var(--green)':fpy>=80?'var(--amber)':'var(--red)'}">${fpy}%</span>
+        </div>`).join('')}
+    </div>` : ''}
+
+    ${!total ? `<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">Sin datos todavía</div><div class="empty-sub">Completá tu primer QC para ver estadísticas aquí</div></div>` : ''}
+  `;
+}
+
+// ═══════════════════════════════════════════
+// HISTORY
+// ═══════════════════════════════════════════
+function renderHistory() {
+  document.getElementById('topbar-title').textContent = 'Historial de inspecciones';
+  document.getElementById('topbar-meta').textContent = `${state.sessions.length} registros`;
+  document.getElementById('topbar-actions').innerHTML = `
+    <button class="btn btn-ghost" onclick="exportCSV()" style="margin-right:6px">Exportar CSV</button>
+  `;
+
+  const c = document.getElementById('content');
+  if (!state.sessions.length) {
+    c.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">Sin historial</div><div class="empty-sub">Los QC finalizados aparecerán aquí</div></div>`;
+    return;
+  }
+  c.innerHTML = `
+    <div class="card" style="padding:0">
+      <div style="display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);font-size:11px;color:var(--text3);font-family:var(--mono)">
+        <span style="min-width:80px">PRODUCTO</span>
+        <span style="flex:1">S/N</span>
+        <span style="min-width:80px">ESTADO</span>
+        <span style="min-width:50px;text-align:right">FPY</span>
+        <span style="min-width:90px;text-align:right">FECHA</span>
+        <span style="min-width:32px"></span>
+      </div>
+      ${[...state.sessions].reverse().map(s => sessionRowWithDelete(s)).join('')}
+    </div>
+  `;
+}
+
+function sessionRowWithDelete(s) {
+  const fpy = calcFPY(s);
+  const status = s.status === 'pass' ? 'status-pass' : s.status === 'fail' ? 'status-fail' : 'status-wip';
+  const statusTxt = s.status === 'pass' ? 'APROBADO' : s.status === 'fail' ? 'RECHAZADO' : 'EN CURSO';
+  return `<div class="history-row" style="cursor:default">
+    <span class="hist-product" style="cursor:pointer;text-decoration:underline;text-decoration-color:var(--border2)" onclick="viewSession('${s.id}')">${PRODUCTS[s.productId]?.name || s.productId}</span>
+    <span class="hist-sn">${s.sn || '—'}</span>
+    <span class="status-badge ${status}">${statusTxt}</span>
+    <span class="hist-fpy" style="color:${fpy >= 95 ? 'var(--green)' : fpy >= 80 ? 'var(--amber)' : 'var(--red)'}">${fpy}%</span>
+    <span class="hist-date">${formatDate(s.createdAt)}</span>
+    <button onclick="confirmDeleteSession('${s.id}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;padding:2px 4px;border-radius:4px;transition:color .15s" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text3)'">✕</button>
+  </div>`;
+}
+
+function confirmDeleteSession(id) {
+  const s = state.sessions.find(x => x.id === id);
+  if (!s) return;
+  showModal(`
+    <div class="modal-title">¿Borrar este QC?</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:16px">
+      Vas a eliminar el QC de <strong>${PRODUCTS[s.productId]?.name || s.productId}</strong> · S/N <strong>${s.sn || '—'}</strong> del ${formatDate(s.createdAt)}.<br><br>Esta acción no se puede deshacer.
+    </p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-danger" onclick="deleteSession('${id}')">Borrar definitivamente</button>
+    </div>
+  `);
+}
+
+function deleteSession(id) {
+  state.sessions = state.sessions.filter(s => s.id !== id);
+  saveState();
+  closeModal();
+  showToast('QC eliminado', 'error');
+  deleteFromSupabase(id);
+  renderHistory();
+}
+
+// ═══════════════════════════════════════════
+// CONFIGURACIÓN — Ponderación y edición de checks
+// ═══════════════════════════════════════════
+function renderConfig() {
+  document.getElementById('topbar-title').textContent = 'Configuración';
+  document.getElementById('topbar-meta').textContent = '';
+  document.getElementById('topbar-actions').innerHTML = '';
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  const navEl = document.querySelector('[data-view="config"]');
+  if (navEl) navEl.classList.add('active');
+
+  const w = state.weights;
+  const c = document.getElementById('content');
+  c.innerHTML = `
+    <!-- PONDERACIÓN -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">Ponderación de criticidad para FPY</div>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:16px">
+        El FPY ponderado descuenta más puntos por defectos críticos que por menores.<br>
+        <span style="font-family:var(--mono);font-size:11px">FPY = 1 − (Σ peso×fallas) / (Σ peso×total)</span>
+      </p>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+        ${[['C','Crítico','var(--red)'],['M','Mayor','var(--amber)'],['m','Menor','var(--blue)']].map(([k,label,color])=>`
+        <div>
+          <div class="field-label" style="color:${color}">${label} (${k})</div>
+          <input type="number" min="1" max="100" class="field-input" id="w-${k}" value="${w[k]}"
+            oninput="state.weights['${k}']=parseInt(this.value)||1;saveState()">
+        </div>`).join('')}
+      </div>
+      <div style="margin-top:12px;padding:10px;background:var(--bg3);border-radius:7px;font-size:12px;color:var(--text2)">
+        Ejemplo: con pesos C=<span id="ex-C">${w.C}</span> / M=<span id="ex-M">${w.M}</span> / m=<span id="ex-m">${w.m}</span> →
+        1 defecto Crítico pesa lo mismo que <span id="ex-ratio">${(w.C/w.m).toFixed(1)}</span> defectos Menores.
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <button class="btn btn-ghost" onclick="state.weights={C:10,M:3,m:1};saveState();renderConfig();showToast('Pesos restaurados','')">Restaurar defaults</button>
+        <button class="btn btn-accent" onclick="saveState();showToast('Ponderación guardada','success')">Guardar</button>
+      </div>
+    </div>
+
+    <!-- EDITOR DE CHECKS -->
+    <div class="card">
+      <div class="card-title">Editar líneas de QC por producto</div>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:14px">Seleccioná un producto para ver y modificar sus checks.</p>
+      <select class="field-input" id="edit-product-sel" onchange="renderCheckEditor(this.value)" style="margin-bottom:16px">
+        <option value="">— Elegí un producto —</option>
+        ${Object.entries(PRODUCTS).map(([id,p])=>`<option value="${id}">${p.name}</option>`).join('')}
+      </select>
+      <div id="check-editor"></div>
+    </div>
+
+    <!-- ONLINE SYNC -->
+    <div class="card" style="margin-top:16px">
+      <div class="card-title" style="display:flex;align-items:center;gap:8px">
+        Sincronización online — Supabase
+        <span id="sync-dot" style="width:8px;height:8px;border-radius:50%;flex-shrink:0;background:${state.syncKey?'var(--green)':'var(--text3)'}"></span>
+      </div>
+
+      ${state.syncKey ? `
+        <div style="padding:10px 12px;background:var(--green-dim);border:1px solid #22c55e30;border-radius:8px;margin-bottom:14px;font-size:12px;color:var(--green)">
+          ✓ Conectado · última sync: ${state.lastSync ? formatDate(state.lastSync) : 'nunca'}
+          <div style="font-family:var(--mono);color:var(--text2);margin-top:4px;font-size:11px">${state.sbUrl}</div>
+        </div>
+        <button class="btn btn-danger" onclick="disconnectSync()">Desconectar</button>
+        <button class="btn btn-ghost" style="margin-left:8px" onclick="pullFromSupabase().then(()=>{showToast('Datos actualizados','success');renderHistory()})">↓ Sync manual</button>
+      ` : `
+        <p style="font-size:12px;color:var(--text2);margin-bottom:14px">
+          Conectá con tu proyecto de Supabase para sincronizar entre tablet y PC en tiempo real.<br>
+          Encontrás estos datos en <span style="font-family:var(--mono);color:var(--accent)">supabase.com → tu proyecto → Settings → API</span>
+        </p>
+        <div style="margin-bottom:10px">
+          <div class="field-label">Project URL</div>
+          <input class="field-input" id="sync-url-input" placeholder="https://xxxxxxxxxxxx.supabase.co" value="${state.sbUrl||''}">
+        </div>
+        <div style="margin-bottom:14px">
+          <div class="field-label">Anon / Public Key</div>
+          <input class="field-input" id="sync-key-input" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." value="${state.sbAnonKey||''}">
+        </div>
+        <button class="btn btn-accent" onclick="connectSync()">Conectar a Supabase</button>
+      `}
+    </div>
+  `;
+}
+
+function renderCheckEditor(productId) {
+  const container = document.getElementById('check-editor');
+  if (!productId) { container.innerHTML = ''; return; }
+  const p = PRODUCTS[productId];
+
+  container.innerHTML = p.sections.map((sec, si) => `
+    <div style="margin-bottom:16px">
+      <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;display:flex;align-items:center;gap:8px">
+        ${sec.name}
+        <button class="btn btn-ghost" style="padding:3px 10px;font-size:11px" onclick="addCheckItem('${productId}',${si})">+ Agregar línea</button>
+      </div>
+      ${sec.items.map((it, ii) => `
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px" id="edit-row-${it.id}">
+          <select style="background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--text);font-family:var(--font);outline:none;min-width:80px"
+            onchange="editCheckField('${productId}',${si},${ii},'sev',this.value)">
+            <option value="C" ${it.sev==='C'?'selected':''}>● Crítico</option>
+            <option value="M" ${it.sev==='M'?'selected':''}>◆ Mayor</option>
+            <option value="m" ${it.sev==='m'?'selected':''}>○ Menor</option>
+          </select>
+          <input class="field-input" style="flex:1;padding:6px 10px;font-size:12px" value="${it.text.replace(/"/g,'&quot;')}"
+            onchange="editCheckField('${productId}',${si},${ii},'text',this.value)">
+          <button onclick="deleteCheckItem('${productId}',${si},${ii})"
+            style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;padding:2px 6px;border-radius:4px;transition:color .15s"
+            onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text3)'">✕</button>
+        </div>`).join('')}
+    </div>
+  `).join('') + `
+    <button class="btn btn-accent" style="margin-top:8px" onclick="saveProductEdits('${productId}')">Guardar cambios en ${p.name}</button>
+  `;
+}
+
+function editCheckField(productId, si, ii, field, val) {
+  PRODUCTS[productId].sections[si].items[ii][field] = val;
+}
+
+function deleteCheckItem(productId, si, ii) {
+  PRODUCTS[productId].sections[si].items.splice(ii, 1);
+  saveProductEdits(productId, true);
+  renderCheckEditor(productId);
+}
+
+function addCheckItem(productId, si) {
+  const sec = PRODUCTS[productId].sections[si];
+  const newId = sec.id + '-' + Date.now();
+  sec.items.push({ id: newId, text: 'Nuevo check...', sev: 'M' });
+  saveProductEdits(productId, true);
+  renderCheckEditor(productId);
+}
+
+function saveProductEdits(productId, silent = false) {
+  // Persist custom product definitions
+  try {
+    const customProds = JSON.parse(localStorage.getItem('idiot_custom_products') || '{}');
+    customProds[productId] = PRODUCTS[productId];
+    localStorage.setItem('idiot_custom_products', JSON.stringify(customProds));
+  } catch(e) {}
+  if (!silent) showToast('Checks actualizados', 'success');
+}
+
+function loadCustomProducts() {
+  try {
+    const customProds = JSON.parse(localStorage.getItem('idiot_custom_products') || '{}');
+    Object.entries(customProds).forEach(([id, def]) => {
+      if (PRODUCTS[id]) PRODUCTS[id] = def;
+    });
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════
+// SUPABASE SYNC
+// ═══════════════════════════════════════════
+let syncInterval = null;
+
+// ── Supabase REST helpers ──
+function sbHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'apikey': state.sbAnonKey,
+    'Authorization': `Bearer ${state.sbAnonKey}`,
+    'Prefer': 'return=representation',
+  };
+}
+function sbUrl(table, query = '') {
+  return `${state.sbUrl}/rest/v1/${table}${query}`;
+}
+
+async function sbFetch(path, options = {}) {
+  const res = await fetch(`${state.sbUrl}/rest/v1/${path}`, {
+    ...options,
+    headers: { ...sbHeaders(), ...(options.headers || {}) },
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Supabase ${res.status}: ${err}`);
+  }
+  return res.status === 204 ? null : res.json();
+}
+
+// ── Connect / disconnect ──
+async function connectSync() {
+  const url   = (document.getElementById('sync-url-input')?.value || '').trim().replace(/\/$/, '');
+  const key   = (document.getElementById('sync-key-input')?.value || '').trim();
+  if (!url || !key) { showToast('Completá URL y anon key', 'error'); return; }
+  state.sbUrl     = url;
+  state.sbAnonKey = key;
+  state.syncKey   = url; // used as "connected" flag
+  saveState();
+  showToast('Conectando...', '');
+  const ok = await testConnection();
+  if (ok) {
+    await pullFromSupabase();
+    startSyncPolling();
+    renderConfig();
+    showToast('Conectado a Supabase ✓', 'success');
+  } else {
+    state.syncKey = null;
+    saveState();
+    renderConfig();
+  }
+}
+
+function disconnectSync() {
+  clearInterval(syncInterval);
+  syncInterval    = null;
+  state.syncKey   = null;
+  state.sbUrl     = null;
+  state.sbAnonKey = null;
+  state.lastSync  = null;
+  saveState();
+  updateSyncIndicator(false);
+  showToast('Desconectado', '');
+  renderConfig();
+}
+
+async function testConnection() {
+  try {
+    await sbFetch('qc_sessions?limit=1&select=id');
+    updateSyncIndicator(true);
+    return true;
+  } catch(e) {
+    showToast('Error de conexión: ' + e.message, 'error');
+    updateSyncIndicator(false);
+    return false;
+  }
+}
+
+// ── Push a single session to Supabase (upsert) ──
+async function pushSession(sess) {
+  if (!state.syncKey) return;
+  const row = {
+    id:          sess.id,
+    product_id:  sess.productId,
+    sn:          sess.sn || '',
+    pin:         sess.pin || '',
+    armo:        sess.armo || '',
+    reviso:      sess.reviso || '',
+    status:      sess.status,
+    fpy:         calcFPY(sess),
+    checks:      sess.checks,
+    created_at:  sess.createdAt,
+    finished_at: sess.finishedAt || null,
+  };
+  try {
+    await sbFetch('qc_sessions', {
+      method: 'POST',
+      headers: { 'Prefer': 'resolution=merge-duplicates,return=representation' },
+      body: JSON.stringify(row),
+    });
+    updateSyncIndicator(true);
+  } catch(e) {
+    console.warn('Push failed:', e.message);
+    updateSyncIndicator(false);
+  }
+}
+
+// ── Delete a session from Supabase ──
+async function deleteFromSupabase(id) {
+  if (!state.syncKey) return;
+  try {
+    await sbFetch(`qc_sessions?id=eq.${id}`, { method: 'DELETE' });
+  } catch(e) {
+    console.warn('Remote delete failed:', e.message);
+  }
+}
+
+// ── Pull all sessions from Supabase and merge locally ──
+async function pullFromSupabase() {
+  if (!state.syncKey) return;
+  try {
+    const rows = await sbFetch('qc_sessions?select=*&order=created_at.desc');
+    if (!Array.isArray(rows)) return;
+    // Map DB columns → local format
+    const remote = rows.map(r => ({
+      id:         r.id,
+      productId:  r.product_id,
+      sn:         r.sn,
+      pin:        r.pin,
+      armo:       r.armo,
+      reviso:     r.reviso,
+      status:     r.status,
+      fpy:        r.fpy,
+      checks:     r.checks || {},
+      createdAt:  r.created_at,
+      finishedAt: r.finished_at,
+    }));
+    // Merge: union by id
+    const localIds = new Set(state.sessions.map(s => s.id));
+    remote.forEach(rs => { if (!localIds.has(rs.id)) state.sessions.push(rs); });
+    saveState();
+    state.lastSync = new Date().toISOString();
+    saveState();
+    updateSyncIndicator(true);
+  } catch(e) {
+    console.warn('Pull failed:', e.message);
+    updateSyncIndicator(false);
+  }
+}
+
+// ── Push product definition edits ──
+async function pushProductDefinition(productId) {
+  if (!state.syncKey) return;
+  try {
+    await sbFetch('qc_product_definitions', {
+      method: 'POST',
+      headers: { 'Prefer': 'resolution=merge-duplicates,return=representation' },
+      body: JSON.stringify({
+        product_id:  productId,
+        definition:  PRODUCTS[productId],
+        updated_at:  new Date().toISOString(),
+      }),
+    });
+  } catch(e) {
+    console.warn('Product def push failed:', e.message);
+  }
+}
+
+// ── Pull product definitions ──
+async function pullProductDefinitions() {
+  if (!state.syncKey) return;
+  try {
+    const rows = await sbFetch('qc_product_definitions?select=*');
+    if (!Array.isArray(rows)) return;
+    rows.forEach(r => {
+      if (PRODUCTS[r.product_id] && r.definition) PRODUCTS[r.product_id] = r.definition;
+    });
+  } catch(e) {
+    console.warn('Product def pull failed:', e.message);
+  }
+}
+
+function startSyncPolling() {
+  clearInterval(syncInterval);
+  syncInterval = setInterval(pullFromSupabase, 20000); // pull every 20s
+}
+
+function updateSyncIndicator(ok) {
+  const dot   = document.getElementById('sync-dot');
+  const badge = document.getElementById('sync-badge');
+  if (dot)   dot.style.background   = ok ? 'var(--green)' : (state.syncKey ? 'var(--red)' : 'var(--text3)');
+  if (badge) badge.style.background = ok ? 'var(--green)' : (state.syncKey ? 'var(--amber)' : 'var(--text3)');
+}
+
+// ═══════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════
+function calcFPY(sess) {
+  const p = PRODUCTS[sess.productId];
+  if (!p) return 0;
+  const w = state.weights;
+  let totalWeight = 0, failWeight = 0;
+  p.sections.flatMap(s => s.items).forEach(it => {
+    const wt = w[it.sev] || 1;
+    totalWeight += wt;
+    if (sess.checks[it.id]?.state === 'fail') failWeight += wt;
+  });
+  if (!totalWeight) return 100;
+  return Math.round((1 - failWeight / totalWeight) * 100);
+}
+
+function formatDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'2-digit' }) + ' ' +
+    d.toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit' });
+}
+
+function exportCSV() {
+  const rows = [['ID','Producto','SN','Armo','Reviso','Estado','FPY_ponderado','Fecha','Defectos_C','Defectos_M','Defectos_m']];
+  state.sessions.forEach(s => {
+    const p = PRODUCTS[s.productId];
+    const failures = p ? p.sections.flatMap(sec => sec.items).filter(it => s.checks[it.id]?.state === 'fail') : [];
+    rows.push([
+      s.id, PRODUCTS[s.productId]?.name || s.productId, s.sn, s.armo, s.reviso,
+      s.status, calcFPY(s) + '%', formatDate(s.createdAt),
+      failures.filter(f => f.sev === 'C').length,
+      failures.filter(f => f.sev === 'M').length,
+      failures.filter(f => f.sev === 'm').length,
+    ]);
+  });
+  const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `idiot_qc_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  showToast('CSV exportado correctamente', 'success');
+}
+
+// ═══════════════════════════════════════════
+// MODAL & TOAST
+// ═══════════════════════════════════════════
+function showModal(html) {
+  document.getElementById('modal-body').innerHTML = html;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.className = 'toast', 3000);
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+loadState();
+loadCustomProducts();
+if (state.syncKey) {
+  startSyncPolling();
+  const badge = document.getElementById('sync-badge');
+  if (badge) badge.style.background = 'var(--green)';
+}
+renderHome();
+</script>
+</body>
+</html>
